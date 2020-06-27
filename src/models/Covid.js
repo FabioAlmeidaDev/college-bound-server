@@ -9,12 +9,12 @@ const covidSchema = new mongoose.Schema({
     type: 'date',
     required: true
   },
-  question: {
+  q: {
     type: mongoose.Schema.Types.String,
     unique: false,
     required: true
   },
-  answer: {
+  v: {
     type: mongoose.Schema.Types.String,
     unique: false,
     required: true
