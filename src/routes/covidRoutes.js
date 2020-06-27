@@ -28,7 +28,7 @@ router.post('/covid/add', async (req, res) => {
 
     // START: check if there is already an entry for this user today
     await Covid.count({ userId: userId, date: getDate() }, (err, docs) => {
-      console.log('COUNT', err, docs);
+      console.log('COUNT', err, docs, userId, getDate());
       if (docs > 0) {
         console.log('COUNT 2', err, docs);
 
