@@ -7,13 +7,19 @@ const Athlete = mongoose.model('Athlete');
 router.post('/add_athlete', async (req, res) => {
   // the user id is available in the req already because we set the req.user after we authenticate the user with the JWT
 
-  const { name, email, dob, group, fourDigitPin, password } = req.body;
+  const { name, email, dob, group, fourDigitPin, password, guardian, gym, phone_no } = req.body;
   let missingFields = [];
   if (!name) {
     missingFields.push('name');
   }
+  if (!guardian) {
+    missingFields.push('guardian');
+  }
   if (!dob) {
     missingFields.push('date of birth');
+  }
+  if (!gym) {
+    missingFields.push('gym');
   }
   if (!group) {
     missingFields.push('group');
@@ -27,7 +33,10 @@ router.post('/add_athlete', async (req, res) => {
   if (!email) {
     missingFields.push('email');
   }
-  if (!name || !email || !dob || !group || !fourDigitPin || !password) {
+  if (!phone_no) {
+    missingFields.push('phone number');
+  }
+  if (!guardian || !phone_no || !gym || !name || !email || !dob || !group || !fourDigitPin || !password) {
     let fields = '';
     for (var i = 0; i < missingFields.length; i++) {
       if (i == missingFields.length - 1) {
@@ -42,12 +51,16 @@ router.post('/add_athlete', async (req, res) => {
 
   try {
     const athlete = new Athlete({
+      _id: mongoose.Types.ObjectId(),
+      guardian,
       name,
       dob: new Date(dob),
       group,
+      gym,
       fourDigitPin,
       password,
-      email
+      email,
+      phone_no
     });
     await athlete.save();
     const token = jwt.sign({ userId: athlete._id }, 'MY_SECRET_KEY');

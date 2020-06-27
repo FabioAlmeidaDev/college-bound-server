@@ -32,10 +32,11 @@ app.get('/', requireAuth, (req, res) => {
 });
 
 const mongoURI = 'mongodb+srv://admin:Cinza5713@cluster0-xsb7s.mongodb.net/covid-waiver?retryWrites=true&w=majority';
-mongoose.connect(mongoURI, { useNewUrlParser: true, useCreateIndex: true });
+// mongoose.connect(mongoURI, { useNewUrlParser: true, useCreateIndex: true });
+mongoose.connect(mongoURI, { autoIndex: false });
 
 mongoose.connection.on('connected', () => {
-  console.info('connecte to mogoDB');
+  console.info('connected to mogoDB');
 });
 mongoose.connection.on('error', (e) => {
   console.error('error connecting to mongoDB: ', e);

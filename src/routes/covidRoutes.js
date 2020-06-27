@@ -27,29 +27,32 @@ router.post('/covid/add', async (req, res) => {
     await athlete.comparePassword(password);
 
     // START: check if there is already an entry for this user today
-    await Covid.find({ userId: userId, date: getDate() }, (err, docs) => {
-      if (docs.length > 0) {
-        const error = 'This athlete already checked in today! Try again tomorrow :-)';
-        res.send({ error });
-      } else {
-        if (questions) {
-          questions.map((question) => {
-            question.userId = userId;
-            question.date = getDate();
-            return question;
-          });
+    const docs = await Covid.find({ userId: userId, date: getDate() }, (err, docs) => {});
+    if (docs.length > 0) {
+      const error = 'This athlete already checked in today! Try again tomorrow :-)';
+      res.send({ error });
+    } else {
+      if (questions) {
+        questions.map((question) => {
+          question._id = mongoose.Types.ObjectId();
+          question.userId = userId;
+          question.date = getDate();
+          return question;
+        });
+        console.log(questions);
+        Covid.create(questions, function (err) {
+          res.send(true);
 
-          Covid.create(questions, function (err) {
-            if (err) {
-              // res.status(422).send({ error: e.message });
-            } else {
-              // res.send('success');
-            }
-          });
-        }
-        res.send(true);
+          if (err) {
+            console.log('ERROR', err);
+            // res.status(422).send({ error: e.message });
+          } else {
+            // res.send('success');
+          }
+        });
       }
-    });
+      // res.send(true);
+    }
   } catch (e) {
     const error = 'Invalid 4 Digit PIN';
     res.send({ error });

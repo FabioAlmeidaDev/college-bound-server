@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
 const athleteSchema = new mongoose.Schema({
+  guardian: {
+    type: 'string',
+    unique: true,
+    required: true
+  },
   name: {
     type: 'string',
     unique: true,
@@ -9,22 +14,32 @@ const athleteSchema = new mongoose.Schema({
   },
   group: {
     type: 'string',
-    unique: true,
+    unique: false,
+    required: true
+  },
+  gym: {
+    type: 'string',
+    unique: false,
     required: true
   },
   dob: {
     type: 'string',
-    unique: true,
+    unique: false,
     required: true
   },
   fourDigitPin: {
     type: 'string',
-    unique: true,
+    unique: false,
     required: true
   },
   email: {
     type: 'string',
-    unique: true,
+    unique: false,
+    required: true
+  },
+  phone_no: {
+    type: 'string',
+    unique: false,
     required: true
   },
   password: {
