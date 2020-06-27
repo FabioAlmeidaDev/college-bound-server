@@ -3,6 +3,7 @@ require('./models/Athlete');
 require('./models/Covid');
 require('./models/Questions');
 
+const port = process.env.PORT || 3000;
 const express = require('express');
 const authRoutes = require('./routes/authRoutes');
 const athleteRoutes = require('./routes/athletes');
@@ -39,6 +40,6 @@ mongoose.connection.on('connected', () => {
 mongoose.connection.on('error', (e) => {
   console.error('error connecting to mongoDB: ', e);
 });
-app.listen(3001, () => {
-  console.log('listening on port 3000');
+app.listen(port, () => {
+  console.log(`listening on port ${port}`);
 });
