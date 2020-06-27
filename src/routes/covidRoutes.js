@@ -27,28 +27,29 @@ router.post('/covid/add', async (req, res) => {
     await athlete.comparePassword(password);
 
     // START: check if there is already an entry for this user today
-    const docs = await Covid.find({ userId: userId, date: getDate() });
-    if (docs.length > 0) {
-      const error = 'This athlete already checked in today! Try again tomorrow :-)';
-      res.send({ error });
-    } else {
-      if (questions) {
-        questions.map((question) => {
-          question.userId = userId;
-          question.date = getDate();
-          return question;
-        });
+    const d = await Covid.find({ userId: userId, date: getDate() }, (err, docs) => {
+      if (docs.length > 0) {
+        const error = 'This athlete already checked in today! Try again tomorrow :-)';
+        res.send({ error });
+      } else {
+        if (questions) {
+          questions.map((question) => {
+            question.userId = userId;
+            question.date = getDate();
+            return question;
+          });
 
-        Covid.create(questions, function (err) {
-          if (err) {
-            // res.status(422).send({ error: e.message });
-          } else {
-            // res.send('success');
-          }
-        });
+          Covid.create(questions, function (err) {
+            if (err) {
+              // res.status(422).send({ error: e.message });
+            } else {
+              // res.send('success');
+            }
+          });
+        }
+        res.send(true);
       }
-      res.send(true);
-    }
+    });
   } catch (e) {
     const error = 'Invalid 4 Digit PIN';
     res.send({ error });

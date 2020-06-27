@@ -3,7 +3,7 @@ require('./models/Athlete');
 require('./models/Covid');
 require('./models/Questions');
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3001;
 const express = require('express');
 const authRoutes = require('./routes/authRoutes');
 const athleteRoutes = require('./routes/athletes');
