@@ -47,7 +47,7 @@ router.post('/covid/add', async (req, res) => {
             }
           });
         }
-        res.send(true);
+        res.send(docs);
       }
     });
   } catch (e) {
