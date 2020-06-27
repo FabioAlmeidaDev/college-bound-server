@@ -28,11 +28,18 @@ router.post('/covid/add', async (req, res) => {
 
     // START: check if there is already an entry for this user today
     await Covid.count({ userId: userId, date: getDate() }, (err, docs) => {
+      console.log('COUNT', err, docs);
       if (docs > 0) {
+        console.log('COUNT 2', err, docs);
+
         const error = 'This athlete already checked in today! Try again tomorrow :-)';
         res.send({ error });
       } else {
+        console.log('COUNT 3', err, docs);
+
         if (questions) {
+          console.log('COUNT 4', err, docs);
+
           questions.map((question) => {
             question.userId = userId;
             question.date = getDate();
@@ -40,6 +47,8 @@ router.post('/covid/add', async (req, res) => {
           });
 
           Covid.create(questions, function (err) {
+            console.log('COUNT 5', err, docs);
+
             if (err) {
               // res.status(422).send({ error: e.message });
             } else {
