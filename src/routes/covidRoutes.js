@@ -27,8 +27,8 @@ router.post('/covid/add', async (req, res) => {
     await athlete.comparePassword(password);
 
     // START: check if there is already an entry for this user today
-    const d = await Covid.find({ userId: userId, date: getDate() }, (err, docs) => {
-      if (docs.length > 0) {
+    Covid.count({ userId: userId, date: getDate() }, (err, docs) => {
+      if (docs > 0) {
         const error = 'This athlete already checked in today! Try again tomorrow :-)';
         res.send({ error });
       } else {
