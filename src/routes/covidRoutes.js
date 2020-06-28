@@ -39,12 +39,10 @@ router.post('/covid/add', async (req, res) => {
           question.date = getDate();
           return question;
         });
-        console.log(questions);
         Covid.create(questions, function (err) {
           res.send(true);
 
           if (err) {
-            console.log('ERROR', err);
             // res.status(422).send({ error: e.message });
           } else {
             // res.send('success');
@@ -65,8 +63,56 @@ router.get('/covid/find', async (req, res) => {
 });
 router.get('/covid/all', async (req, res) => {
   // the user id is available in the req already because we set the req.user after we authenticate the user with the JWT
-  const covid = await Covid.find();
+  const covid = await Covid.find().populate(['userId']);
   res.send(covid);
+});
+router.post('/covid/all/dates', async (req, res) => {
+  let { from, to } = req.body;
+  let last24hr = new Date();
+  last24hr.setDate(last24hr.getDate() - 1);
+
+  from = from ? new Date(from) : last24hr;
+  to = to ? new Date(to) : new Date();
+  const covid = await Covid.find({ date: { $gte: from, $lt: new Date(to) } })
+    .populate('userId', 'name group')
+    .lean()
+    .exec();
+
+  const flatArray = covid.map((item) => ({ ...item.userId, ...item, userId: item.userId._id }));
+
+  const reducedArray = flatArray.reduce((prev, curr) => {
+    let obj = {};
+    if (prev[curr.name]) {
+      const yes = curr.v == 'true' ? prev[curr.name].yes + 1 : prev[curr.name].yes;
+      const no = curr.v == 'false' ? prev[curr.name].no + 1 : prev[curr.name].no;
+      const date = curr.date;
+      const group = curr.group;
+      const name = curr.name;
+
+      obj = {
+        yes,
+        no,
+        date,
+        group,
+        name
+      };
+    } else {
+      obj = {
+        yes: curr.v == 'true' ? 1 : 0,
+        no: curr.v == 'false' ? 1 : 0,
+        date: curr.date,
+        group: curr.group,
+        name: curr.name
+      };
+    }
+    return { ...prev, [curr.name]: obj };
+  }, {});
+
+  const final = [];
+  for (let item in reducedArray) {
+    final.push(reducedArray[item]);
+  }
+  res.send(final);
 });
 router.get('/covid/questions', async (req, res) => {
   // the user id is available in the req already because we set the req.user after we authenticate the user with the JWT

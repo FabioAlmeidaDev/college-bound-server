@@ -8,7 +8,7 @@ const covidSchema = new mongoose.Schema({
   },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'Athlete'
   },
   date: {
     type: 'date',
