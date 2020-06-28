@@ -4,12 +4,12 @@ const bcrypt = require('bcrypt');
 const athleteSchema = new mongoose.Schema({
   guardian: {
     type: 'string',
-    unique: true,
+    unique: false,
     required: true
   },
   name: {
     type: 'string',
-    unique: true,
+    unique: false,
     required: true
   },
   group: {
