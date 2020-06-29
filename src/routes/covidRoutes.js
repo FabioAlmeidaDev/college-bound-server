@@ -67,50 +67,56 @@ router.get('/covid/all', async (req, res) => {
   res.send(covid);
 });
 router.post('/covid/all/dates', async (req, res) => {
-  let { from, to } = req.body;
-  let last24hr = new Date();
-  last24hr.setDate(last24hr.getDate() - 1);
-
-  from = from ? new Date(from) : last24hr;
-  to = to ? new Date(to) : new Date();
-  const covid = await Covid.find({ date: { $gte: from, $lt: new Date(to) } })
-    .populate('userId', 'name group')
-    .lean()
-    .exec();
-
-  const flatArray = covid.map((item) => ({ ...item.userId, ...item, userId: item.userId._id }));
-
-  const reducedArray = flatArray.reduce((prev, curr) => {
-    let obj = {};
-    if (prev[curr.name]) {
-      const yes = curr.v == 'true' ? prev[curr.name].yes + 1 : prev[curr.name].yes;
-      const no = curr.v == 'false' ? prev[curr.name].no + 1 : prev[curr.name].no;
-      const date = curr.date;
-      const group = curr.group;
-      const name = curr.name;
-
-      obj = {
-        yes,
-        no,
-        date,
-        group,
-        name
-      };
-    } else {
-      obj = {
-        yes: curr.v == 'true' ? 1 : 0,
-        no: curr.v == 'false' ? 1 : 0,
-        date: curr.date,
-        group: curr.group,
-        name: curr.name
-      };
-    }
-    return { ...prev, [curr.name]: obj };
-  }, {});
-
   const final = [];
-  for (let item in reducedArray) {
-    final.push(reducedArray[item]);
+  try {
+    let { from, to } = req.body;
+    let last24hr = new Date();
+    last24hr.setDate(last24hr.getDate() - 1);
+
+    from = from ? new Date(from) : last24hr;
+    to = to ? new Date(to) : new Date();
+    const covid = await Covid.find({ date: { $gte: from, $lt: new Date(to) } })
+      .populate('userId', 'name group')
+      .lean()
+      .exec();
+
+    const flatArray = covid.map((item) => {
+      return { ...item.userId, ...item, userId: item.userId ? item.userId._id : null };
+    });
+
+    const reducedArray = flatArray.reduce((prev, curr) => {
+      let obj = {};
+      if (prev[curr.name]) {
+        const yes = curr.v == 'true' ? prev[curr.name].yes + 1 : prev[curr.name].yes;
+        const no = curr.v == 'false' ? prev[curr.name].no + 1 : prev[curr.name].no;
+        const date = curr.date;
+        const group = curr.group;
+        const name = curr.name;
+
+        obj = {
+          yes,
+          no,
+          date,
+          group,
+          name
+        };
+      } else {
+        obj = {
+          yes: curr.v == 'true' ? 1 : 0,
+          no: curr.v == 'false' ? 1 : 0,
+          date: curr.date,
+          group: curr.group,
+          name: curr.name
+        };
+      }
+      return { ...prev, [curr.name]: obj };
+    }, {});
+
+    for (let item in reducedArray) {
+      final.push(reducedArray[item]);
+    }
+  } catch (err) {
+    console.log('Error: ' + err);
   }
   res.send(final);
 });
