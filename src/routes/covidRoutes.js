@@ -1,5 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const moment = require('moment-timezone');
+
 const auth = require('../middleware/requireAuth');
 
 const Covid = mongoose.model('Covid');
@@ -21,6 +23,15 @@ router.post('/covid/add', async (req, res) => {
 
     const newdate = year + '/' + month + '/' + day;
     return new Date(newdate);
+  };
+
+  const getDateNew = () => {
+    var d = new Date();
+    var myTimezone = 'America/New_York';
+    var myDatetimeFormat = 'YYYY-MM-DD hh:mm:ss a z';
+    var myDatetimeString = moment(d).tz(myTimezone).format(myDatetimeFormat);
+
+    return myDatetimeString;
   };
 
   try {
@@ -68,6 +79,7 @@ router.get('/covid/all', async (req, res) => {
 });
 router.post('/covid/all/dates', async (req, res) => {
   const final = [];
+
   try {
     let { from, to } = req.body;
     let last24hr = new Date();
