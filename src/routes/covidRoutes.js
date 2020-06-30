@@ -16,7 +16,7 @@ const getDate = () => {
   const day = dateObj.getUTCDate();
   const year = dateObj.getUTCFullYear();
 
-  const newdate = year + '-' + month + '-' + day + ' 00:00:00.000';
+  const newdate = year + '-' + month + '-' + day + ' 04:00:00.000';
   const output = new Date(newdate);
   return output;
 };
