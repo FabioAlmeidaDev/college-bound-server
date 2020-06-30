@@ -10,29 +10,21 @@ const Athlete = mongoose.model('Athlete');
 
 const router = express.Router();
 
+const getDate = () => {
+  const dateObj = new Date();
+  const month = dateObj.getUTCMonth() + 1; //months from 1-12
+  const day = dateObj.getUTCDate();
+  const year = dateObj.getUTCFullYear();
+
+  const newdate = year + '-' + month + '-' + day + ' 00:00:00.000';
+  const output = new Date(newdate);
+  return output;
+};
+
 router.post('/covid/add', async (req, res) => {
   const { userId, questions, password } = req.body;
 
   const athlete = await Athlete.findOne({ _id: userId });
-
-  const getDate = () => {
-    const dateObj = new Date();
-    const month = dateObj.getUTCMonth() + 1; //months from 1-12
-    const day = dateObj.getUTCDate();
-    const year = dateObj.getUTCFullYear();
-
-    const newdate = year + '/' + month + '/' + day;
-    return new Date(newdate);
-  };
-
-  const getDateNew = () => {
-    var d = new Date();
-    var myTimezone = 'America/New_York';
-    var myDatetimeFormat = 'YYYY-MM-DD hh:mm:ss a z';
-    var myDatetimeString = moment(d).tz(myTimezone).format(myDatetimeFormat);
-
-    return myDatetimeString;
-  };
 
   try {
     await athlete.comparePassword(password);
@@ -79,7 +71,6 @@ router.get('/covid/all', async (req, res) => {
 });
 router.post('/covid/all/dates', async (req, res) => {
   const final = [];
-
   try {
     let { from, to } = req.body;
     let last24hr = new Date();
@@ -87,7 +78,8 @@ router.post('/covid/all/dates', async (req, res) => {
 
     from = from ? new Date(from) : last24hr;
     to = to ? new Date(to) : new Date();
-    const covid = await Covid.find({ date: { $gte: from, $lt: new Date(to) } })
+
+    const covid = await Covid.find({ date: { $gte: from, $lte: to } })
       .populate('userId', 'name group')
       .lean()
       .exec();
