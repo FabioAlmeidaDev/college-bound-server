@@ -50,7 +50,7 @@ router.post("/add_athlete", async (req, res) => {
   }
 
   // START: check if there is already an entry for this user
-  const docs = await Athlete.find({ name: name }, (err, docs) => {});
+  const docs = await Athlete.find({ name: { $regex: new RegExp("^" + name.toLowerCase().trim(), "i") } }, (err, docs) => {});
   if (docs.length > 0) {
     const error = "There is already an entry with this name in our database. If you dont see it in the list, try clicking the refresh button";
     res.send({ error });
