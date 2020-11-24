@@ -1,0 +1,10 @@
+
+{
+    "MY_SECRET" : "MY_SECRET",
+    "DB" : {
+        "USER" : "admin",
+        "PASSWORD" : "Cinza5713",
+        "COLLECTION" : "college-bound",
+        "URI" : "cluster0-xsb7s.mongodb.net"
+    }
+}
