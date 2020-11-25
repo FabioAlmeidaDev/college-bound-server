@@ -42,7 +42,7 @@ if( !email || !password) {
 // First check to see if the email alredy exits in the db
 const user_exists = User.findOne({email: email.toLowerCase()});
 if (user_exists) {
-    res.status(423).send({ error: "This user already exists in our database"});
+    res.status(423).send({ error: "This user already exists in our database."});
 }
 
 // If there user is not in the DB:
