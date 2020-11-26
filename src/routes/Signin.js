@@ -8,15 +8,15 @@ router.post("/signin", async (req, res) => {
     const { email, password } = req.body;
     try {
       if (!email) {
-        return res.status(401).send({ status: "fail", errorcode: 401 , error_message: "Must provide an email" });
+        return res.status(200).send({ status: "fail", errorcode: 200 , error_message: "Must provide an email" });
       }
       if (!password) {
-        return res.status(401).send({ status: "fail", errorcode: 401 , error_message: "Must provide a password" });
+        return res.status(200).send({ status: "fail", errorcode: 200 , error_message: "Must provide a password" });
       }
 
       const user = await User.findOne({ email: email });
       if (!user) {
-        return res.status(401).send({ status: "fail", errorcode: 401 , error_message: "sign in failed" });
+        return res.status(200).send({ status: "fail", errorcode: 200 , error_message: "sign in failed" });
       }
 
       try {
@@ -24,7 +24,7 @@ router.post("/signin", async (req, res) => {
         const token = tokenService.sign(user._id);
         res.send({ status: "success", data: {token} });
       } catch (e) {
-        res.status(401).send({ status: "fail", errorcode: 401, error_message: "Invalid Password or Email" });
+        res.status(200).send({ status: "fail", errorcode: 200, error_message: "Invalid Password or Email" });
       }
     } catch (e) {}
   });
