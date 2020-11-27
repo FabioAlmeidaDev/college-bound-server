@@ -76,20 +76,19 @@ router.post("/forgot", async (req, res) => {
      * 4. send link wirh token to user ?t=1234567890
      * 5. when user clicks save, use the token t to authorize the transaction
      */
-     const baseURL = req.get("HOST");
-     const { email } = req.body;
+     const { email, baseURL } = req.body;
      if (!email) {
-         res.status(422).send({status: "fail", error: "You must provide an email"});
+         res.status(200).send({status: "fail", errorcode: 422, error_message: "You must provide an email"});
      }
 
      const user = await User.findOne({email});
      if (!user) {
-        res.status(422).send({status: "fail", error: "This email is not in our database"});
+        res.status(200).send({status: "fail", errorcode: 422, error_message: "This email is not in our database"});
      }
 
      const token = tokenService.sign(user._id, '15m');
 
-     const output_link = `${baseURL}?t=${token}`
+     const output_link = `http://${baseURL}/reset.do?t=${token}`
 
      // TODO: send out email
      console.log(output_link);
@@ -118,6 +117,31 @@ router.post("/update", async (req, res) =>{
 
     }else if( status == "fail") {
         res.status(401).send({status, errorcode: "Unauthorized", error_message: "invalid token"})
+    }else {
+        res.send({status: "fail"});
+    }
+})
+
+router.post("/changePassword", async (req, res) =>{
+    /**
+     * Always authorize update so long the token is passed in
+     */
+    const {token, email, password} = req.body;
+
+    const {status,data} = await tokenService.verify(token);
+
+    if(status == "success") {
+        let user = await User.findOne({_id: data.userId, email: email});
+        if (!user) {
+            res.status(200).send({status: "fail",errorcode:422, error_message: "User not found"})
+        } else {
+            user.password = password;
+            await user.save();
+            res.status(200).send({status: "success", data: user});
+        }
+
+    }else if( status == "fail") {
+        res.status(200).send({status, errorcode: "Unauthorized", error_message: "invalid token"})
     }else {
         res.send({status: "fail"});
     }
