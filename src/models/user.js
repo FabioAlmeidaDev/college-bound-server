@@ -10,7 +10,55 @@ const userSchema = new mongoose.Schema({
   password: {
     type: "string",
     required: true
-  }
+  },
+  fullName: {
+    type: "string",
+    required: true
+  },
+  accountType: {
+    type: "string",
+    required: true
+  },
+  dob: {
+    type: "date",
+    required: true
+  },
+  gradYear: {
+    type: "number",
+    required: true
+  },
+  guardianName: {
+    type: "string",
+    required: true
+  },
+  guardiaEmail: {
+    type: "string",
+    required: true
+  },
+  gym: {
+    type: "string",
+    required: true
+  },
+  coachesName: {
+    type: "string",
+    required: true
+  },
+  coachEmail: {
+    type: "string",
+    required: true
+  },
+  youtubeChannel: {
+    type: "string",
+  },
+  instagramAccount: {
+    type: "string",
+  },
+  acceptedVerbalOffer: {
+    type: "boolean",
+  },
+  acceptedWrittenOffer: {
+    type: "boolean",
+  },
 });
 userSchema.pre("save", function(next) {
   // needs to use the keyword function so the keyword THIS points to the user and not this entire file which would happen if i used an arrow function (funny that by using the arrow function the THIS keyword has a different value, go figure)

@@ -22,7 +22,7 @@ router.post("/signin", async (req, res) => {
       try {
         await user.comparePassword(password);
         const token = tokenService.sign(user._id);
-        res.send({ status: "success", data: {token} });
+        res.send({ status: "success", data: {token, user} });
       } catch (e) {
         res.status(200).send({ status: "fail", errorcode: 200, error_message: "Invalid Password or Email" });
       }
@@ -30,16 +30,16 @@ router.post("/signin", async (req, res) => {
   });
  
 router.post("/signup", async (req, res) => {
-    const { email, password } = req.body;
+    const {fullName, accountType, dob, gradYear, email, guardianName, guardiaEmail, gym, coachesName, coachEmail, youtubeChannel, instagramAccount, acceptedVerbalOffer, acceptedWrittenOffer, password} = req.body;
 
     if( !email || !password) {
-        res.status(401).send({ status: "fail", errorcode: 401, error_message: "Missing email or password"});
+        res.status(200).send({ status: "fail", errorcode: 401, error_message: "Missing email or password"});
     }
 
     // First check to see if the email alredy exits in the db
     const user_exists = await User.findOne({email: email.toLowerCase()});
     if (user_exists) {
-        res.status(401).send({ status: "fail", errorcode: 401, error_message: "This user already exists in our database."});
+        res.status(200).send({ status: "fail", errorcode: 401, error_message: "This user already exists in our database."});
     } else {
         // If there user is not in the DB:
         // 1. Go ahead and add it
@@ -48,6 +48,19 @@ router.post("/signup", async (req, res) => {
         const user = new User({
             _id: mongoose.Types.ObjectId(),
             email: email.toLowerCase(),
+            fullName,
+            accountType,
+            dob,
+            gradYear,
+            guardianName,
+            guardiaEmail,
+            gym,
+            coachesName,
+            coachEmail,
+            youtubeChannel,
+            instagramAccount,
+            acceptedVerbalOffer,
+            acceptedWrittenOffer,
             password
         });
 
@@ -60,7 +73,9 @@ router.post("/signup", async (req, res) => {
             } catch (e) {
                 res.status(422).send({ status: "fail", errorcode: 422, error_message: e });
             }
-        } catch (e) {}
+        } catch (e) {
+            console.log("E: ", e)
+        }
     }
 });
 
@@ -100,48 +115,25 @@ router.post("/update", async (req, res) =>{
     /**
      * Always authorize update so long the token is passed in
      */
-    const {token, email, password} = req.body;
-
+    const {token, user} = req.body;
+    
     const {status,data} = await tokenService.verify(token);
 
     if(status == "success") {
-        let user = await User.findOne({_id: data.userId});
-        if (!user) {
+        let findUser = await User.findOne({_id: data.userId});
+        if (!findUser) {
             res.status(422).send({status: "fail",errorcode:422, error_message: "User not found"})
         } else {
-            user.email = email;
-            user.password = password;
-            await user.save();
+            const userKeys = Object.keys(user);
+            for (let key of userKeys) {
+                findUser[key] = user[key];
+            }
+            await findUser.save();
             res.status(200).send({status: "success", data: user});
         }
 
     }else if( status == "fail") {
         res.status(401).send({status, errorcode: "Unauthorized", error_message: "invalid token"})
-    }else {
-        res.send({status: "fail"});
-    }
-})
-
-router.post("/changePassword", async (req, res) =>{
-    /**
-     * Always authorize update so long the token is passed in
-     */
-    const {token, email, password} = req.body;
-
-    const {status,data} = await tokenService.verify(token);
-
-    if(status == "success") {
-        let user = await User.findOne({_id: data.userId, email: email});
-        if (!user) {
-            res.status(200).send({status: "fail",errorcode:422, error_message: "User not found"})
-        } else {
-            user.password = password;
-            await user.save();
-            res.status(200).send({status: "success", data: user});
-        }
-
-    }else if( status == "fail") {
-        res.status(200).send({status, errorcode: "Unauthorized", error_message: "invalid token"})
     }else {
         res.send({status: "fail"});
     }
